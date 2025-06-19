@@ -14,7 +14,7 @@ such as danceability, energy levels, acousticness, instrumentalness, etc. The sh
 plot that dictated loudness across different decades, showing a general increase in decibal ranges over time as seen below.
 
 **Sample data visualization:** 
-![](figures/Fig2_MiniProject1.png)
+![](Fig2_MiniProject1.png)
 
 ## Project 02
 
@@ -26,7 +26,7 @@ performance is a steady increase up through the player's 30s with a slight decli
 in the `project_02/` folder.
 
 **Sample data visualization:** 
-![](figures/Fig3_MiniProject2.png)
+![](Fig3_MiniProject2.png)
 
 ## Project 03
 
@@ -37,7 +37,7 @@ work is presented in the `project_03/` folder. A sample visualization from this 
 distribution in each month in Tampa during 2022. 
 
 **Sample data visualization:** 
-![](figures/Fig4_MiniProject3.png)
+![](Fig4_MiniProject3.png)
 
 ### Moving Forward
 
