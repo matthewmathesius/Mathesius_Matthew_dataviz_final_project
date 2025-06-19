@@ -1,0 +1,62 @@
+# Data Visualization 
+
+> Matthew Mathesius. 
+
+## Mini-Project 1
+
+### Outline
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This work investigates the varying relations that exist between recorded Billboard top hits in recent decades. Areas of focus will include changes in song characteristic metrics over time and comparisons between music of different decades. *All summaries here will follow the order in which the plots were created in the file in the report sub-folder.*
+
+---
+
+### Motivation
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The original decision behind choosing a data set came from my previous interests in different music genres and regularly following up on both new album releases and listening to older music I hadn't heard before while working. There are many ways to qualitatively differentiate music across different eras and through sub-genres, but a quantitative approach is something I hadn't fully considered previously. The intrigue to investigate music under a new lens is what brought me to choose the data set **all_billboard_summer_hits.csv**. After a quick glance at some of the data available in this set, the following preliminary ideas were generated as for what to plot:
+
+1. With the introduction of things like harder rock and roll in the 1980s and 1990s to electronic music dominance into the 21st century, what is the trend between music energy over time?
+2. Music overall from the psychedelic period of the 1960s qualitatively feels a lot softer than music from later decades. How has the actual loudness of music been altered over time?
+3. There is a common ethos that modern music has been shrunk in duration over time to match shrinking attention spans. Is this true based on Billboard data?
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Basing the project on these governing question, initial thoughts revolved around using bar charts to contrast decades in the past and present using varying qualities present in the data set. A line chart would be most effective for Question 1, which would include a single trend line in the XY-plane. *Other charts that were displayed in this project were not originally considered, and will instead be discussed in the analysis section where they were made.* Through these plots, the following goal was established:
+
+> This project serves as an attempt to tell the story of how music has developed in the past 60 years using quantitative metrics and pre-defined characteristics to describe songs. The visualizations shown herein are an attempt to display how music, despite  being qualitatively different across decades, remains to obey similar performance metrics and thus can be characterized into pre-defined groups accordingly.
+
+---
+
+### Findings from Data Analysis
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The first plot seen below in Fig. 1 was created to showcase how song dynamics in terms of energy has changed over time. Based on the trend line for energy, it is clear there is a consistent increase in a song's energy, or measured intensity/activity on a 0-1 scale. This trend makes sense based on the music trends of recent decades, as the introduction of engaging electronic instruments and synthesizers created more opportunity for higher intensity sounds in music. The 2 major increases in energy occurred during the 1980s and 2000s, which directly correlates to the expected outcomes based on the rising music genres of those decades. As a point of interest, danceability was plotted on this same graph to analyze if there was a correlation between a song having more energy and being more danceable. This plot validated that claim, but the slopes indicate much less of an increase over time relative to energy. This trend also makes sense, as there has to be a balance with electronic music being extremely fast and high energy, thus lacking the ability to choreograph a routine to it as well as other music. 
+
+![Fig. 1 - Danceability & Energy Trends in Billboard Summer Hits](https://raw.githubusercontent.com/matthewmathesius/MiniProject1-Images/main/Fig1_MiniProject1.png)
+<div style="font-size: 6px;">⠀</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In the next created visualization, some initial data filtering was required to view the data with respect to grouped decades rather than individual years. When this was complete, the loudness in decibels was reported in the data set's songs across each decade they were present in. The goal here was to not only showcase a trend over time, but to also develop an understanding of the distribution of dB readings across each decade. To complete both of these goals, a violin plot was chosen such that the widths could indicate which dB readings were more and less prevalent within each decade. Additionally, the linear trend line added shows the general increase in loudness in songs as time continued. This was a plot not originally considered in the pre-planning phase of this project, but its inclusion here provides valuable information with regards to loudness trends. Additional interesting data points this plot showcases is the large range in loudness seen in the 1950s-1970s, whereas the distribution in dB ranges decreased into smaller ranges into more modern decades. 
+
+![Fig. 2 - Loudness Trends Across Billboard Hits in Each Decade](https://raw.githubusercontent.com/matthewmathesius/MiniProject1-Images/main/Fig2_MiniProject1.png)
+<div style="font-size: 6px;">⠀</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To further understand the differences in song characteristics between decades,a case study was done using the 1960s and 2010s as the points of comparison. The same data filtering was done as seen in the previous graph to get the data split by decade. In this study, the following characteristics were analyzed:
+
+1. Valence - defined as measuring how positive a song is, with a score closer to 1 indicating happier and more positive energy.
+2. Speechiness - defined as measuring the density of spoken words in a song, with higher values indicating higher likelihoods a majority of the song is spoken words.
+3. Liveness - defined as measuring the likelihood the song was recorded in front of a live audience, with a higher score increasing that probability.
+4. Acousticness - defined as measuring the confidence a song is acoustic, with higher values increasing that confidence.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;With these terms defined, Fig. 3 showcases the findings when comparing these two decades. A summary of this chart indicates that while the presence of acoustic instruments in the 1960s was significantly higher than 2010s music in addition to having slightly more positive song outlooks, the 2010s decade reports a mildly higher liveness with significant increases in speechiness. The speechiness discrepancy, while being the most surprising at first, is explained by older music having much longer instrumental solos that would thus lower the speechiness score of that era's music. This would in turn raise the 1960's acousticsness score, which is sensical in dominating the 2010s score due to modern music including many elements outside of acoustic instrumentation (i.e. electronic instruments). The liveness score differentiation is the most interesting, as despite the current ethos suggesting more modern music is missing the "real" aesthetic of being around crowds and performed authentically, these metrics indicate more songs in the 2010s are being recorded in front of live audiences. This metric could indicate a counter-movement to this ethos, with artists intentionally recording in front of live audiences as a way to bring back that feeling missing from the modern era. 
+
+![Fig. 3 - Comparison of Song Characteristics Between the 1960s and 2010s](https://raw.githubusercontent.com/matthewmathesius/MiniProject1-Images/main/Fig3_MiniProject1.png)
+
+<div style="font-size: 6px;">⠀</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current work presented answered the first 2 governing questions within the motivation of this work. To investigate the final question with regards to song durations, a similar grouping technique was done as before but in this case working with converting ms data to minute:second durations and grouping them into categories. Then, for each decade, the proportion of each time grouping present in songs for the respective decade was plotted on a stacked bar chart as seen in Fig. 4. This vidsualization provides many insights, with the first notable one being the major discrepancy in shorter songs in the 1950s and 1960s relative to later decades. Whereas some would expect shorter songs would exist in the modern age due to the boom of streaming services and social media platforms, the 2010s data indicates that was not as major of an impact as anticipated. Songs in the 1980s and 1990s saw over half the billboard charts 4+ minutes long, which heavily coincides with the previous claim of music in these eras exhibiting long instrumental solos. Trends show the charts used to favor shorter songs in the 1950s-1970s before the major shift in longer-form media took dominance up until the 2000s. The 21st century saw a growing downward trend in song duration downwards to the 3-4 minute range. If more data was present to the modern year, it would be expected that trend would have continued with the largest proportion likely being in the 2:30-3 or 3-3:30 minute duration ranges. 
+
+![Fig. 4 - Song Durations Across Decades](https://raw.githubusercontent.com/matthewmathesius/MiniProject1-Images/main/Fig4_MiniProject1.png)
+
+---
+
+### Conclusions & Final Remarks
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Through these visualizations, an attempt was made to quantify music trends over a near 7 decade range. Through the commentary presented, answers to the previously mentioned research objectives are summarized below:
+
+1. Energy is songs has continuously increased over time, in part hypothesized due to the increasing technological capabilities of music over time. Other characteristics such as liveness and speechiness have also seen increases over time, indicating trends towards song with higher word:instrument ratios and recordings in front of live audiences. 
+2. Again likely due to technological advancements over time, music has historically gotten both louder and existing within smaller ranges of decibal readings. These lower ranges indicate more uniformity in the music being created, showing a media desire for that kind of music. 
+3. Songs have gotten shorter over recent decades, but not to a very large degree. Music in the 1960s saw historically much shorter songs on the charts relative to the modern decade. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Analyzing the work done as a whole, the principles of data visualization were applied to correlate data in ways that yield logical conclusions. Key aspects such as utilizing proper colors and minimizing slanted text were used in all plots to ensure readability. Data filtering was done using appropriate functions as to not misrepresent any data when claims were presented throughout the report. When creating labels, an attempt was made as to not over-define the plot and have recurring statements like shown in some examples previously in the course. Overall, the utilization of RStudio was implemented to visualize music data both accurately and with respect to following basic standards and principles. 

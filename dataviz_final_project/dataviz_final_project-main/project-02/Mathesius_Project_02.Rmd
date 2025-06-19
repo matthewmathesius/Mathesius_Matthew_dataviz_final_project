@@ -1,0 +1,203 @@
+---
+title: "Mini-Project 02"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+---
+
+### Outline
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This work investigates the varying relations of soccer player data in the 2018 FIFA game release. Trends between player origins, clubs, and provided player statistics will be used to gain insight into the league in this provided year. 
+
+### Motivation
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sports have been a unifying force worldwide for multiple millennia, and the modern day is no exception. Soccer in particular is the largest sport in the world and has gained traction in the majority of the world's countries. With this globalization in mind, the following research questions were generated prior to considering any data visualizations?
+
+1. What countries are producing higher amounts of pro-level players relative to others? Are players being born in that country typically playing for clubs also in that country?
+2. How does age play a role in overall player stats and individual performance metrics?
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Basing the project on these governing question, initial thoughts revolved around using a heat map to spatially visualize the nationalities of players around the world by using a color scale to relate summed player counts in each country. For the question on age, initial thoughts were to average overall player score and a few individual metrics (agility, strength, and potential) and create an interactive plot where you can see the rankings for any selected age. Finally, for the third question, the intent was to... Through these plots, the following goal was established:
+
+> This project serves the purpose of telling the story of the vast differences between professional soccer players around the world seen through their FIFA rankings. The plots and visualizations herein will attempt to paint this narrative and provide insights to each of the guiding research objectives. 
+
+### Findings from Data Analysis
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Strting with the first research question, in order to generate the world map with appropriate player counts, the first necessary step was to read the data set and obtain these counts. The first step of reading the data set is seen below, with the player count table following directly under. The values in this table will be used to validate the mapping visualization is working successfully in the next step of code. 
+
+```{r}
+suppressMessages(library(tidyverse))
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+FIFA_Data <- read_csv("https://raw.githubusercontent.com/aalhamadani/datasets/main/fifa18.csv", show_col_types = FALSE)
+
+#Will now filter to obtain player counts in each country
+NetPlayers <- FIFA_Data %>%
+  group_by(nationality) %>%
+  summarise(PlayerCount = n()) %>%
+  arrange(desc(PlayerCount)) #Arranging in descending order like I had done in Mini Project 1
+NetPlayers
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;With the net players obtained for each country, it is shown England has the largest representation. When plotting the map, that will be used as an indicator to ensure the color scheme is plotting correctly. To get the map now, the sf library was added in addition to an ISO country code library since those are not provided in the original data set. This was done to match the formatting used in the course material for Week 4. There were some issues arising specifically from the United Kingdom with multiple countries being under 1 ISO code, so that was handled through manually grouping them and then summing in the summarized data set. The end result of this is the map presented in Fig. 1. Analyzing the results, one of the most intriguing data points comes in the form of India. Despite being one of the most populated countries in the world, there is no representation from this country, indicating a lack of cultural affiliation for soccer in India relative to other things.Additionally, due to the grouping of countries into Great Britain in addition to the already large presence in England, this region yielded a significantly higher count relative to other geographic regions. 
+
+```{r}
+library(sf)
+library(countrycode)
+
+WorldShape <- read_sf("data/ne_110m_admin_0_countries.shp")
+WorldShape <- WorldShape %>%
+  mutate(ISO_A3 = countrycode(ADMIN, "country.name", "iso3c"))
+
+MissingMappingCodes <- c("England" = "GBR",
+                    "Scotland" = "GBR",
+                    "Wales" = "GBR",
+                    "Northern Ireland" = "GBR",
+                    "Kosovo" = "XKX")
+
+NetPlayers <- NetPlayers %>%
+  mutate(ISO_A3 = countrycode(nationality, "country.name", "iso3c"),
+         ISO_A3 = ifelse(nationality %in% names(MissingMappingCodes), 
+                         MissingMappingCodes[nationality], ISO_A3))
+
+NetPlayers <- NetPlayers %>%
+  group_by(ISO_A3) %>%
+  summarize(PlayerCount = sum(PlayerCount, na.rm = TRUE))
+
+FilteredMap <- WorldShape %>%
+  left_join(NetPlayers %>% select(ISO_A3, PlayerCount), by = "ISO_A3") %>%
+  filter(ISO_A3 != "ATA")
+
+ggplot(FilteredMap) +
+  geom_sf(aes(fill = PlayerCount)) +
+  scale_fill_gradient(low = "lightblue", high = "darkgreen") + 
+  labs(title = "FIFA Professional Soccer Player Distribution Across the World",
+       fill = "Number of Players", 
+      caption = "Fig. 1: World map generated assuming some grouped countries all under Great Britain ISO code") +
+  theme_classic()
+ggsave("Fig1_MiniProject2.png")
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To begin analyzing the question of age rather than region, players were grouped based on their age in the 2018 season. From here, the average score for their overall, potential, agility, and strength attribute was tabulated and reported in the below table for each age. The primary findings here are listed below:
+
+a) Age data is only fully uniform between 16-40. Past 40 there are gaps showing no player in the league was that age. Due to this, data will only be viewed in this window.
+b) Overall and potential scores are very similar, especially as age increases. Due to this, the overall stat was selected to not be plotted in the next steps of data visualization. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Using these findings and slightly morphing the scope of the plot accordingly, an interactive line plot was generated in Fig. 2 to show these trends between younger and older players. The trends show that players between their teens and early 30s shows scalable improvement in both agility and strength, but past this point yields considerable losses (most notably in agility). This trend is logical in nature, as players in their 20s are both gaining more skill and are in their potential physical prime relative to a player in their 30s or older. Potential, on the other hand, shows a slight and consistent decline as players in the league get older. This is likely due to potential factoring in their future career, wth younger players showing likelihood to continue playing and expanding their skill-sets longer than an older player (even if the older player in fact has more skill). The interactive nature of this plot allows users to view the average scores for each given age group across the different attributes
+
+```{r}
+AgeStats <- FIFA_Data %>%
+  group_by(age) %>%
+  summarize(
+    AverageOverall = mean(overall, na.rm = TRUE),
+    AveragePotential = mean(potential, na.rm = TRUE),
+    AverageAgility = mean(agility, na.rm = TRUE),
+    AverageStrength = mean(strength, na.rm = TRUE),
+  ) %>%
+  distinct(age, .keep_all = TRUE) 
+
+AgeStats
+```
+```{r}
+library(plotly)
+library(RColorBrewer)
+
+AgeStatsFiltered <- AgeStats %>%
+  filter(age >= 16, age <= 40) %>%
+  pivot_longer(cols = c(AveragePotential, AverageAgility, AverageStrength),
+               names_to = "Attribute", values_to = "Score") %>%
+  mutate(Attribute = factor(Attribute, levels = c("AveragePotential", "AverageStrength", "AverageAgility")))
+
+SteadyPlot <- ggplot(AgeStatsFiltered, aes(x = age, y = Score, color = Attribute)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +  
+  scale_color_brewer(palette = "Set1") +
+  scale_x_continuous(limits = c(16, 40), expand = c(0, 0), breaks = seq(16, 40, by = 4)) +
+  labs(title = "How Player Attributes Change with Age in FIFA Soccer Players",
+       x = "Player Age",
+       y = "Attribute Score (0-100)",
+       color = "Attribute",
+       caption = "Fig. 2 interactive nature designed to view exact values for scores at each unique age") +
+  theme_bw()
+
+InteractivePlot=ggplotly(SteadyPlot)
+
+InteractivePlot
+ggsave("Fig2_MiniProject2.png")
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Since the overall score was voided from the previous visualization, statistics will be ran on that individual set of data points alongside the other attributes investigated previously. A linear model of the averages exists in Fig. 2, so the statistics ran in the coefficient plot will be used to validate that model and/or discover any new trends that the previous plot missed due to the oversimplification of using averages. The table below shows the previously mentioned statistics, which are plotted further below in Fig. 3. From this analysis, the negative coefficients between potential, strength, and agility all show a lowered performance estimate as age increases. Agility and strength were very close to 0, as the model was attempting to balance the increased region prior to age 35 and the sharp decline after that age group. Potential is a much more negative value, likely due to the continued decrease in score throughout the entire age range.  
+
+```{r}
+library(tibble)
+
+StartingModel <- lm(age ~ overall + potential + agility + strength, data = FIFA_Data)
+
+StatisticTable <- tibble(
+  term = names(coefficients(StartingModel)),
+  estimate = coefficients(StartingModel),  
+  std.error = summary(StartingModel)$coefficients[, "Std. Error"],  
+  conf.low = confint(StartingModel)[,1],  
+  conf.high = confint(StartingModel)[,2] 
+)
+
+print(StatisticTable)
+```
+```{r}
+coeff_df <- data.frame(
+  term = names(coefficients(StartingModel)),
+  estimate = coefficients(StartingModel),
+  conf.low = confint(StartingModel)[,1],
+  conf.high = confint(StartingModel)[,2]
+) %>%
+  filter(term != "(Intercept)")
+
+ggplot(coeff_df, aes(x = estimate, y = term)) +
+  geom_point(size = 4, color = "red") +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), height = 0.2) + 
+  scale_x_continuous(limits = c(-1, 1)) +
+  geom_text(aes(label = case_when(
+    term == "potential" ~ "Negative\nTrend",
+    term == "agility" ~ "Neutral\nTrend",
+    term == "strength" ~ "Neutral\nTrend",
+    term == "overall" ~ "Positive\nTrend"
+  )), hjust = -0.2, vjust = 0, size = 4, color = "black") + 
+  labs(title = "Box and Whisker Plot of Data Regression Coefficients and Error Bars",
+       x = "Coefficient Estimate from Statistical Analysis",
+       y = "Attributes Used for Prediction",
+       caption = "Fig. 3 plotted using calculated statistical values in the previous table, with identical performance metrics used in Fig. 2") +
+  theme_bw()
+ggsave("Fig3_MiniProject2.png")
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;However, the most interesting data point is the positive trend for overall performance. Originally, this was voided from Fig. 2 due to how similar the values were to potential, therefore making it difficult to see on the plot. With this new information, it was elected to plot only overall and potential to view how that appears on the same axes as Fig. 2, as presented below in Fig. 4. What is shown here is that the positive trend in overall performance in the earlier years marks significant increase relative to the slight decline in the 30s age range. The result in Fig. 4 below validates the statistical analysis, showing a large increase in overall metrics prior to meeting the similar decline shown in potential. This explains the net positive coefficient for overall whereas potential was negative due to the constant decline over increased ages. This plot serves as an exercise in proper data analysis and presentation, as without both these graphs, it would be very easy to misconstrue relations between age and overall performance.  
+
+```{r}
+AgeStatsFiltered <- AgeStats %>%
+  filter(age >= 16, age <= 40) %>%
+  select(age, AverageOverall, AveragePotential) %>%
+  pivot_longer(cols = c(AverageOverall, AveragePotential),
+               names_to = "Attribute", values_to = "Score")
+
+ggplot(AgeStatsFiltered, aes(x = age, y = Score, color = Attribute)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Set1") +
+  scale_x_continuous(limits = c(16, 40), expand = c(0, 0), breaks = seq(16, 40, by = 4)) +
+  labs(title = "Comparison of Overall and Potential Attributes Across Age Groups",
+       x = "Player Age",
+       y = "Attribute Score (0-100)",
+       color = "Attribute",
+       caption = "Fig. 4 re-applies the potential attribute curve while also adding in the overall performance metric") +
+  theme_bw()
+
+ggsave("Fig4_MiniProject2.png")
+```
+
+### Conclusions & Final Remarks
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In this analysis of FIFA 2018 player data, the following conclusions were drawn from the data set:
+
+1. Soccer, being the most popular sport in the world, draws players from a majority of the world's countries. The popularity of the sport in countries like England, France, Spain, Brazil, and Argentina resulted in these countries having some of the largest distributions of pro players. 
+2. Age in sports can be an interesting phenomenon. While over time one's physical abilities like their speed and strength diminish, technical skills and game intelligence increases significantly, causing balance shifts when attempting to rate an individual player's overall ratings. Although potential and overall score were heavily linked in later years of age development, younger players see rapid growth in overall rating (likely due to simply getting more skilled after being in the league at higher competition levels). 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Through these visualizations, it was attempted to showcase the story of both the universality of the sport across the world and across different age ranges. The initial map was created to show the worldwide response to the game, whereas the age plots showed not only the distribution, but also that those in theirs 30s were still performing considerably relative to younger athletes. While some declines were shown in the data, relatively higher overall scores proved the sport was not impossible for older athletes to excel in. Furthermore, on the younger athlete side, Fig. 4 helped showcase the rapid room for overall growth in earlier phases of development with, in the worst case of the trends, minor stagnation in later years of play. With this work, the universality of sports was presented both in terms of age and nationality, showing that sports are one of the primary ways the world is brought together. 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reflecting on this work, data visualization principles were followed more evidently than the previous mini project both with respect to analysis and presentation. On the analysis side, plotting the extra visualizations of overall performance after reading the statistical plot prevented misrepresentation of trends that would have otherwise been simple to mistaken. This level of care and precision and data manipulation was not as necessary in the previous mini project and served as a lesson for future work. On the presentation side, more effort was put into scheming in the sense of using the RColorBrewer package to ensure line colors were more distinct from one another compared to defaults. Additionally, legends were modified to ensure the order of appearance was correlated to the height of the line for simple interpretation. Overall, the continued practice of telling stories through data that are easily understandable were practiced in this work and will continue to be considered in the future.
